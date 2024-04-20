@@ -1,0 +1,6 @@
+@MQuiz.Api_HostAddress = http://localhost:5299
+
+GET {{MQuiz.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

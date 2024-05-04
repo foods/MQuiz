@@ -7,7 +7,7 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddAuthenticationConfiguration(builder.Configuration!);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(o => o.UseRoutePrefix("api"));
 builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
 builder.Services.AddEndpointsApiExplorer();

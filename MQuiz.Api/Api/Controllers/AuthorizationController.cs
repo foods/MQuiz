@@ -8,12 +8,12 @@ namespace Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class AuthorizationController : ControllerBase
+public class AuthenticationController : ControllerBase
 {
-    private readonly ILogger<AuthorizationController> _logger;
+    private readonly ILogger<AuthenticationController> _logger;
     private readonly ITokenService _tokenService;
 
-    public AuthorizationController(ILogger<AuthorizationController> logger, ITokenService tokenService)
+    public AuthenticationController(ILogger<AuthenticationController> logger, ITokenService tokenService)
     {
         _logger = logger;
         _tokenService = tokenService;

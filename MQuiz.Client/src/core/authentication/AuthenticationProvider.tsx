@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import AuthenticationContext, { AuthState } from './AuthenticationContext';
 import useAuthTokenPersist from './useAuthTokenPersist';
 import { useDispatch, useSelector } from 'react-redux';
-import jwtDecode from '../../shared/util/jwtDecode';
 import { setAuth } from '../../shared/state/auth/authReducer';
+import { RootState } from '../../shared/state/appStore';
+import { initialAuthState } from '../../shared/types/auth/authState';
+import shallowCompare from '../../shared/util/shallowCompare';
 
 type Props = {
     children: ReactNode;
@@ -13,6 +15,7 @@ type Props = {
 const AuthenticationProvider = ({ children }: Props) => {
     const [authState, setAuthState] = useState<AuthState>(AuthState.unset);
     const { storedAuthToken, storeAuthToken, clearStoredToken } = useAuthTokenPersist();
+    const auth = useSelector((state: RootState) => state.auth);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -24,19 +27,18 @@ const AuthenticationProvider = ({ children }: Props) => {
                 navigate('/');
             }
         },
-        [navigate],
+        [clearStoredToken, navigate],
     );
 
     const login = useCallback(
         (token: string, noNavigate: boolean = false) => {
             dispatch(setAuth(token));
-
             setAuthState(AuthState.authorized);
             if (!noNavigate) {
                 navigate('/');
             }
         },
-        [navigate],
+        [dispatch, navigate],
     );
 
     useEffect(() => {
@@ -48,10 +50,16 @@ const AuthenticationProvider = ({ children }: Props) => {
             ) {
                 setAuthState(AuthState.unauthorized);
             } else {
-                login(storedAuthToken.token);
+                login(storedAuthToken.token, true);
             }
         }
-    }, [authState, storeAuthToken, login, jwtDecode]);
+    }, [authState, login, storedAuthToken.token, storedAuthToken.tokenExpireTimestamp]);
+
+    useEffect(() => {
+        if (!shallowCompare(auth, initialAuthState)) {
+            storeAuthToken(auth);
+        }
+    }, [auth, storeAuthToken]);
 
     const memoedValue = useMemo(
         () => ({

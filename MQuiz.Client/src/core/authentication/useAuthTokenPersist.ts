@@ -1,16 +1,17 @@
+import { useState } from 'react';
 import AuthState, { initialAuthState } from '../../shared/types/auth/authState';
-import useLocalStorage from '../../shared/util/useLocalStorage';
 
 const storageName = 'userState';
 
 const useAuthTokenPersist = () => {
-    const [storedAuthToken, setTokenValue] = useLocalStorage<AuthState>(
-        storageName,
-        initialAuthState,
-    );
+    const [storedAuthToken, setTokenValue] = useState<AuthState>(() => {
+        const item = localStorage.getItem(storageName);
+        return item ? JSON.parse(item) : initialAuthState;
+    });
 
     const storeAuthToken = (token: AuthState) => {
         setTokenValue(token);
+        localStorage.setItem(storageName, JSON.stringify(token));
     };
 
     const clearStoredToken = () => {
